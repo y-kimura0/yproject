@@ -1,0 +1,16 @@
+{% extends 'Y/base.html' %}
+{% block title %}Y - プロフィール編集{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <h2>プロフィール編集</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">保存</button>
+        </form>
+        <a href="{% url 'profile' username=request.user.username %}">プロフィールに戻る</a>
+    </div>
+</div>
+{% endblock %}

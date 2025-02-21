@@ -1,0 +1,119 @@
+{% extends 'Y/base.html' %}
+{% load static %}
+{% block title %}Y - ホーム{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <h2 class="mb-4">ホーム</h2>
+        {% csrf_token %}
+        {% for tweet in tweets %}
+            <div class="card mb-3 tweet-card" data-tweet="{{ tweet.id }}">
+                <div class="card-body">
+                    <!-- ユーザー名をクリックでプロフィールページへ -->
+                    <h5 class="card-title">
+                        <a href="{% url 'profile' tweet.user.username %}">{{ tweet.user.username }}</a>
+                    </h5>
+
+                    {% if tweet.is_retweet %}
+                        <p class="text-muted">🔄 
+                            <a href="{% url 'profile' tweet.original_tweet.user.username %}">
+                                {{ tweet.original_tweet.user.username }}
+                            </a> のリツイート
+                        </p>
+                        <p class="card-text">{{ tweet.original_tweet.content }}</p>
+                    {% else %}
+                        <p class="card-text">{{ tweet.content }}</p>
+                    {% endif %}
+
+                    {% if tweet.image %}
+                        <img src="{{ tweet.image.url }}" class="img-fluid rounded mt-2" style="max-height: 300px;">
+                    {% endif %}
+
+                    <p class="text-muted">{{ tweet.created_at|date:"Y-m-d H:i" }}</p>
+
+                    <!-- いいねボタン -->
+                    <button class="btn btn-outline-danger like-btn" data-tweet="{{ tweet.id }}">
+                        {% if user in tweet.likes.all %} ❤️ いいね取消 {% else %} 🤍 いいね {% endif %}
+                    </button>
+                    <span id="like-count-{{ tweet.id }}">{{ tweet.like_count }}</span>
+
+                    <!-- リツイートボタン -->
+                    <form action="{% url 'retweet' tweet.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary">🔄 リツイート</button>
+                    </form>
+
+                    <!-- 返信フォーム -->
+                    <form action="{% url 'reply' tweet.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <input type="text" name="content" placeholder="返信を入力..." class="form-control d-inline w-50">
+                        <button type="submit" class="btn btn-outline-secondary">💬 返信</button>
+                    </form>
+
+                    <!-- 削除ボタン（自分のツイートのみ表示） -->
+                    {% if request.user == tweet.user %}
+                    <form action="{% url 'tweet_delete' tweet.id %}" method="post" class="delete-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">🗑️ 削除</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<script src="{% static 'Y/like.js' %}"></script>
+
+<!-- JavaScript: カードをクリックすると詳細ページに遷移 -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".tweet-card").forEach(card => {
+            card.addEventListener("click", function (event) {
+                // 他のボタンをクリックした場合はイベントを無視
+                if (event.target.tagName === "BUTTON" || event.target.tagName === "FORM" || event.target.tagName === "INPUT") {
+                    event.stopPropagation();
+                    return;
+                }
+
+                // ツイートIDを取得して詳細ページへ遷移
+                const tweetId = this.getAttribute("data-tweet");  // 修正ポイント
+                if (tweetId) {
+                    window.location.href = `/tweet/${tweetId}/`;
+                }
+            });
+        });
+    });
+</script>
+
+
+{% endblock %}
+
+<style>
+    .card-body {
+        position: relative;
+    }
+
+    .tweet-card {
+        cursor: pointer;
+    }
+
+    .tweet-card:hover {
+        background-color: #f8f9fa;
+    }
+
+    .delete-form {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .btn-danger {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+    }
+
+    .btn-outline-primary, .btn-outline-secondary {
+        margin-left: 10px;
+    }
+</style>

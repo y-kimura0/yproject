@@ -1,0 +1,18 @@
+{% extends 'Y/base.html' %}
+{% block title %}投稿{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <h2 class="mb-3">新しい投稿</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <!--<div class="mb-3">
+                <textarea name="content" class="form-control" rows="3" placeholder="今どうしてる？"></textarea>
+            </div>-->
+            <button type="submit" class="btn btn-primary">投稿</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

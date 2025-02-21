@@ -1,0 +1,35 @@
+{% extends 'Y/base.html' %}
+{% block content %}
+<div class="container">
+    <h2>ツイート詳細</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ tweet.user.username }}</h5>
+            <p class="card-text">{{ tweet.content }}</p>
+            <p class="text-muted">{{ tweet.created_at|date:"Y-m-d H:i" }}</p>
+        </div>
+    </div>
+
+    <h3 class="mt-4">返信</h3>
+    {% if replies %}
+        {% for reply in replies %}
+            <div class="card mt-2">
+                <div class="card-body">
+                    <h5 class="card-title">{{ reply.user.username }}</h5>
+                    <p class="card-text">{{ reply.content }}</p>
+                    <p class="text-muted">{{ reply.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>返信がありません。</p>
+    {% endif %}
+
+    <!-- 返信フォーム -->
+    <form action="{% url 'reply' tweet.id %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="content" placeholder="返信を入力..." class="form-control">
+        <button type="submit" class="btn btn-primary mt-2">返信する</button>
+    </form>
+</div>
+{% endblock %}

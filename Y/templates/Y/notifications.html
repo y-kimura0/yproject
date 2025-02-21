@@ -1,0 +1,21 @@
+{% extends 'Y/base.html' %}
+{% block title %}Y - 通知{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>通知</h2>
+    <ul class="list-group">
+        {% for notification in notifications %}
+            <li class="list-group-item">
+                {% if notification.notification_type == 'like' %}
+                    <a href="{% url 'profile' notification.sender.username %}">{{ notification.sender.username }}</a> があなたのツイートにいいねしました。
+                {% elif notification.notification_type == 'follow' %}
+                    <a href="{% url 'profile' notification.sender.username %}">{{ notification.sender.username }}</a> があなたをフォローしました。
+                {% endif %}
+            </li>
+        {% empty %}
+            <li class="list-group-item">通知はありません。</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

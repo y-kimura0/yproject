@@ -1,0 +1,63 @@
+{% extends 'Y/base.html' %}
+{% load static %}
+{% block title %}{{ profile.user.username }} のプロフィール{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card p-4">
+            <div class="d-flex">
+                {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" class="rounded-circle" width="80" height="80">
+                {% else %}
+                    <img src={% static "images/profile_icon.png" %} class="rounded-circle" width="80" height="80">
+                    <!--<img src="https://via.placeholder.com/80" class="rounded-circle">-->
+                {% endif %}
+                <div class="ms-3">
+                    <h3>@{{ profile.user.username }}</h3>
+                    <p class="text-muted">登録日: {{ profile.user.date_joined|date:"Y-m-d" }}</p>
+                    <p>{{ profile.bio }}</p>
+                    <a href="{% url 'profile_edit' %}">プロフィールを編集</a>
+                </div>
+            </div>
+        </div>
+        
+        <h3 class="mt-4">投稿一覧</h3>
+        {% for tweet in tweets %}
+            <div class="card mt-2">
+                <div class="card-body">
+                    <p>{{ tweet.content }}</p>
+                    <p class="text-muted">{{ tweet.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                {% if request.user == tweet.user %}  <!-- 自分のツイートにだけ削除ボタンを表示 -->
+                <form action="{% url 'tweet_delete' tweet.id %}" method="post" class="delete-form" 
+                style="position: absolute; bottom: 10px; right: 10px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">🗑 削除</button>
+                </form>
+            {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+<style>
+    .card-body {
+        position: relative; 
+    }
+
+    .delete-form {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .btn-danger {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+    }
+    
+
+</style>
