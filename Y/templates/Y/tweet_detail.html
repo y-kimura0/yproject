@@ -6,6 +6,20 @@
         <div class="card-body">
             <h5 class="card-title">{{ tweet.user.username }}</h5>
             <p class="card-text">{{ tweet.content }}</p>
+
+            <!-- 画像表示部分 -->
+            {% if tweet.original_tweet %}
+                <!-- リツイートの場合、元ツイートの画像を表示 -->
+                {% if tweet.original_tweet.image %}
+                    <img src="{{ tweet.original_tweet.image.url }}" class="img-fluid rounded mt-2" style="max-height: 300px;">
+                {% endif %}
+            {% else %}
+                <!-- 通常のツイートの場合、そのツイート自身の画像を表示 -->
+                {% if tweet.image %}
+                    <img src="{{ tweet.image.url }}" class="img-fluid rounded mt-2" style="max-height: 300px;">
+                {% endif %}
+            {% endif %}
+
             <p class="text-muted">{{ tweet.created_at|date:"Y-m-d H:i" }}</p>
         </div>
     </div>
@@ -17,6 +31,12 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ reply.user.username }}</h5>
                     <p class="card-text">{{ reply.content }}</p>
+
+                    <!-- 返信の画像を表示 -->
+                    {% if reply.image %}
+                        <img src="{{ reply.image.url }}" class="img-fluid rounded mt-2" style="max-height: 300px;">
+                    {% endif %}
+
                     <p class="text-muted">{{ reply.created_at|date:"Y-m-d H:i" }}</p>
                 </div>
             </div>
@@ -26,9 +46,10 @@
     {% endif %}
 
     <!-- 返信フォーム -->
-    <form action="{% url 'reply' tweet.id %}" method="post">
+    <form action="{% url 'reply' tweet.id %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="text" name="content" placeholder="返信を入力..." class="form-control">
+        <input type="file" name="image" class="form-control mt-2">
         <button type="submit" class="btn btn-primary mt-2">返信する</button>
     </form>
 </div>

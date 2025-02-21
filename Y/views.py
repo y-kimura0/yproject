@@ -167,7 +167,14 @@ def notification_list(request):
     #return redirect('tweet_list')
 def retweet(request, tweet_id):
     original_tweet = get_object_or_404(Tweet, id=tweet_id)
-    Tweet.objects.create(user=request.user, original_tweet=original_tweet)
+    #Tweet.objects.create(user=request.user, original_tweet=original_tweet)
+    retweet = Tweet.objects.create(
+        user=request.user,
+        content=original_tweet.content,  # 元ツイートの内容をコピー
+        #image=original_tweet.image,      # 元ツイートの画像をコピー
+        original_tweet=original_tweet,   # リツイート元のツイートを指定
+        #is_retweet=True                  # リツイートであることを明示
+    )
     return redirect('tweet_list')
 
 @login_required

@@ -21,6 +21,9 @@
                             </a> のリツイート
                         </p>
                         <p class="card-text">{{ tweet.original_tweet.content }}</p>
+                        {% if tweet.original_tweet.image %}
+                            <img src="{{ tweet.original_tweet.image.url }}" class="img-fluid rounded mt-2" style="max-height: 300px;">
+                        {% endif %}
                     {% else %}
                         <p class="card-text">{{ tweet.content }}</p>
                     {% endif %}
