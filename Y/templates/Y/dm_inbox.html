@@ -1,19 +1,24 @@
 {% extends "Y/base.html" %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>ダイレクトメッセージ</h2>
-    {% if messages %}
-        <ul class="list-group">
-            {% for message in messages %}
-                <li class="list-group-item">
-                    <strong>{{ message.sender.username }}</strong>: {{ message.content }}
-                    <br>
-                    <small class="text-muted">{{ message.created_at|date:"Y-m-d H:i" }}</small>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>まだメッセージはありません。</p>
+    <h2>DM受信箱</h2>
+    <h3>送信済みメッセージ</h3>
+    {% for message in sent_messages %}
+        <div>
+            <strong>{{ message.receiver.username }}:</strong> {{ message.content }} <small>({{ message.created_at }})</small>
+        </div>
+    {% empty %}
+        <p>送信したメッセージはありません。</p>
+    {% endfor %}
+    
+    <h3>受信メッセージ</h3>
+    {% for message in received_messages %}
+    <div class="message">
+    <p><strong>{{ message.sender.username }}</strong>: {{ message.content }}</p>
+    <p><small>{{ message.created_at }}</small></p>
+    {% if not message.is_reply %}
+        <a href="{% url 'send_dm' message.sender.username %}?parent_message_id={{ message.id }}">返信</a>
     {% endif %}
-</div>
+    </div>
+{% endfor %}
 {% endblock %}

@@ -1,14 +1,15 @@
 {% extends "Y/base.html" %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>ダイレクトメッセージを送る</h2>
-    <p>送信先: {{ receiver.username }}</p>
-    <form method="post">
+    <h2>{{ receiver.username }} にメッセージを送信</h2>
+    <form method="POST">
         {% csrf_token %}
-        <div class="form-group">
-            <textarea name="content" class="form-control" placeholder="メッセージを入力..."></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">送信</button>
-    </form>
-</div>
+        <textarea name="content" placeholder="メッセージを入力"></textarea>
+        {% if parent_message %}
+            <input type="hidden" name="parent_message_id" value="{{ parent_message.id }}">
+            <p>返信先: {{ parent_message.sender.username }} のメッセージ</p>
+        {% endif %}
+        <button type="submit">送信</button>
+        </form>
+        
 {% endblock %}

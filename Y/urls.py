@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/follow/<str:username>/', follow_user_api, name='follow_user_api'),
     path('tweet/<int:tweet_id>/', tweet_detail, name='tweet_detail'),
     path('profile/<int:user_id>/', profile, name='profile'),
+    path('dm/', views.dm_inbox, name='dm_inbox'),
     path('dm/<str:username>/', views.send_dm, name='send_dm'),
-    path('dm/', dm_inbox, name='dm_inbox'),
+    
 ]

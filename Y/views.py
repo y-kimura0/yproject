@@ -8,6 +8,8 @@ from django.http import JsonResponse
 from .forms import ProfileUpdateForm, TweetForm, ProfileEditForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.contrib import messages
+
 
 # ツイート一覧
 
@@ -227,17 +229,66 @@ def followers_list_view(request, username):
     followers = Follow.objects.filter(following=user).select_related('follower')
     return render(request, 'Y/followers_list.html', {'user': user, 'followers': followers})
 
+#@login_required
+#def send_dm(request, username):
+#    receiver = get_object_or_404(User, username=username)
+#    if request.method == "POST":
+#        content = request.POST.get("content")
+#        if content:
+#            DirectMessage.objects.create(sender=request.user, receiver=receiver, content=content)
+#        return redirect("dm_inbox")
+#    return render(request, "Y/send_dm.html", {"receiver": receiver})
+#@login_required
+#def send_dm(request, username):
+#    receiver = User.objects.get(username=username)
+
+#    if request.method == 'POST':
+#        content = request.POST['content']
+        # DMメッセージの作成
+#        DirectMessage.objects.create(
+#            sender=request.user,
+#            receiver=receiver,
+#            content=content,
+#        )
+#        messages.success(request, f"メッセージが{receiver.username}に送信されました。")
+#        return redirect('dm_inbox')
+    
+#    return render(request, 'Y/send_dm.html', {'receiver': receiver})
 @login_required
 def send_dm(request, username):
     receiver = get_object_or_404(User, username=username)
     if request.method == "POST":
         content = request.POST.get("content")
-        if content:
-            DirectMessage.objects.create(sender=request.user, receiver=receiver, content=content)
+        parent_message_id = request.POST.get("parent_message_id")
+        parent_message = None
+        if parent_message_id:
+            parent_message = get_object_or_404(DirectMessage, id=parent_message_id)
+
+        DirectMessage.objects.create(
+            sender=request.user,
+            receiver=receiver,
+            content=content,
+            parent_message=parent_message
+        )
+
         return redirect("dm_inbox")
+    
     return render(request, "Y/send_dm.html", {"receiver": receiver})
 
+#@login_required
+#def dm_inbox(request):
+#    messages = DirectMessage.objects.filter(receiver=request.user).order_by("-created_at")
+#    return render(request, "Y/dm_inbox.html", {"messages": messages})
 @login_required
 def dm_inbox(request):
-    messages = DirectMessage.objects.filter(receiver=request.user).order_by("-created_at")
-    return render(request, "Y/dm_inbox.html", {"messages": messages})
+    # ユーザーが受信したメッセージを取得
+    received_messages = DirectMessage.objects.filter(receiver=request.user).order_by('-created_at')
+    
+    # ユーザーが送信したメッセージを取得
+    sent_messages = DirectMessage.objects.filter(sender=request.user).order_by('-created_at')
+    
+    return render(request, 'Y/dm_inbox.html', {
+        'received_messages': received_messages,
+        'sent_messages': sent_messages,
+    })
+
