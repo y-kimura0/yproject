@@ -21,6 +21,11 @@
                     <a href="{% url 'profile_edit' %}">プロフィールを編集</a>
                     {% endif%}
                 </div>
+                {% if request.user.is_authenticated and request.user != profile.user %}
+                <button id="follow-button" class="btn {% if is_following %}btn-outline-danger{% else %}btn-primary{% endif %} btn-lg ms-auto px-4" data-username="{{ profile.user.username }}">
+                {% if is_following %} フォロー解除 {% else %} フォロー {% endif %}
+                </button>
+                {% endif %}
             </div>
         </div>
         
@@ -42,6 +47,34 @@
         {% endfor %}
     </div>
 </div>
+<script>
+    document.getElementById("follow-button")?.addEventListener("click", function() {
+        let button = this;
+        let username = button.getAttribute("data-username");
+    
+        fetch(`/api/follow/${username}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.followed) {
+                button.textContent = "フォロー解除";
+                button.classList.remove("btn-primary");
+                button.classList.add("btn-outline-danger");
+    
+            } else {
+                button.textContent = "フォロー";
+                button.classList.remove("btn-outline-danger");
+                button.classList.add("btn-primary");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
+    </script>
 {% endblock %}
 
 <style>
@@ -60,6 +93,5 @@
         font-size: 14px;
         border-radius: 5px;
     }
-    
 
 </style>

@@ -32,16 +32,37 @@ def like_tweet_api(request, tweet_id):
     return Response({'message': 'Like toggled', 'like_count': tweet.like_set.count()})
 
 # フォロー機能
+#@api_view(['POST'])
+#@permission_classes([permissions.IsAuthenticated])
+#def follow_user_api(request, username):
+#    user_to_follow = User.objects.get(username=username)
+#    follow, created = Follow.objects.get_or_create(follower=request.user, following=user_to_follow)
+#    
+#    if not created:
+#        follow.delete()
+#    
+#    return Response({'message': 'Follow toggled'})
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def follow_user_api(request, username):
-    user_to_follow = User.objects.get(username=username)
+    user_to_follow = User.objects.filter(username=username).first()
+    
+    if not user_to_follow:
+        return Response({'error': 'User not found'}, status=404)
+
+    if user_to_follow == request.user:
+        return Response({'error': 'You cannot follow yourself'}, status=400)
+
     follow, created = Follow.objects.get_or_create(follower=request.user, following=user_to_follow)
     
     if not created:
         follow.delete()
-    
-    return Response({'message': 'Follow toggled'})
+        followed = False
+    else:
+        followed = True
+
+    return Response({'followed': followed})
+
 
 # 通知一覧
 class NotificationListView(generics.ListAPIView):
