@@ -17,8 +17,18 @@ class TweetListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
+        #serializer.save(user=self.request.user)
+        tweet = serializer.save(user=self.request.user)
+        # フォロワーに通知を送る
+        followers = Follow.objects.filter(following=self.request.user)  # 自分をフォローしている人を取得
+        for follow in followers:
+            Notification.objects.create(
+                sender=self.request.user,
+                receiver=follow.follower,  # フォロワーに通知を送る
+                notification_type="tweet",
+                message=f"{self.request.user.username} さんが新しいツイートを投稿しました。",
+                tweet=tweet
+            )
 # いいね機能
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])

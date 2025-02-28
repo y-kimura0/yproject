@@ -54,6 +54,7 @@ class Notification(models.Model):
     NOTIFICATION_TYPES = (
         ('like', 'いいね'),
         ('follow', 'フォロー'),
+        ('tweet', '新規ツイート'),
     )
 
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender_notifications")

@@ -108,8 +108,14 @@ def profile_view(request, username):
     user = get_object_or_404(User, username=username)
     profile, created = Profile.objects.get_or_create(user=user)
     tweets = Tweet.objects.filter(user=user).order_by('-created_at')
+    profile_user = get_object_or_404(User, username=username)
+    # フォロー数とフォロワー数を取得
+    following_count = Follow.objects.filter(follower=profile_user).count()
+    follower_count = Follow.objects.filter(following=profile_user).count()
+
     is_following = Follow.objects.filter(follower=request.user, following=user).exists() if request.user.is_authenticated else False
-    return render(request, 'Y/profile.html', {'profile': profile, 'tweets': tweets,  'is_following': is_following})
+    return render(request, 'Y/profile.html', {'profile': profile, 'tweets': tweets,'following_count': following_count,
+        'follower_count': follower_count,  'is_following': is_following})
 
 @login_required
 def profile_edit(request):
@@ -202,3 +208,13 @@ def profile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     tweets = Tweet.objects.filter(user=user)
     return render(request, 'Y/profile.html', {'user': user, 'tweets': tweets})
+
+def following_list_view(request, username):
+    user = get_object_or_404(User, username=username)
+    following = Follow.objects.filter(follower=user).select_related('following')
+    return render(request, 'Y/following_list.html', {'user': user, 'following': following})
+
+def followers_list_view(request, username):
+    user = get_object_or_404(User, username=username)
+    followers = Follow.objects.filter(following=user).select_related('follower')
+    return render(request, 'Y/followers_list.html', {'user': user, 'followers': followers})
