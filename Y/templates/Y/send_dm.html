@@ -1,0 +1,14 @@
+{% extends "Y/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>ダイレクトメッセージを送る</h2>
+    <p>送信先: {{ receiver.username }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <textarea name="content" class="form-control" placeholder="メッセージを入力..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">送信</button>
+    </form>
+</div>
+{% endblock %}

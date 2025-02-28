@@ -13,7 +13,10 @@
                     <h5 class="card-title">
                         <a href="{% url 'profile' tweet.user.username %}">{{ tweet.user.username }}</a>
                     </h5>
-
+                        <!-- DMボタン -->
+            {% if tweet.user != request.user %}
+            <a href="{% url 'send_dm' tweet.user.username %}" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane">DMを送る</a>
+        {% endif %}
                     {% if tweet.is_retweet %}
                         <p class="text-muted">🔄 
                             <a href="{% url 'profile' tweet.original_tweet.user.username %}">
@@ -119,4 +122,5 @@
     .btn-outline-primary, .btn-outline-secondary {
         margin-left: 10px;
     }
+    
 </style>

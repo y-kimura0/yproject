@@ -61,9 +61,19 @@ class Notification(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver_notifications")
     notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES)
     tweet = models.ForeignKey('Tweet', on_delete=models.CASCADE, null=True, blank=True)  # いいねの場合
-    message = models.TextField(blank=True, null=True)
+    #message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver} ({self.notification_type})"
+
+class DirectMessage(models.Model):
+    sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name="received_messages", on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.sender} -> {self.receiver}: {self.content[:20]}"

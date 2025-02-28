@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Tweet, Like, Profile, Notification, Follow
+from .models import Tweet, Like, Profile, Notification, Follow,DirectMessage
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -35,6 +35,14 @@ def tweet_create(request):
             tweet = form.save(commit=False)
             tweet.user = request.user
             tweet.save()
+            followers = Follow.objects.filter(following=request.user)
+            for f in followers:
+                Notification.objects.create(
+                    sender=request.user,
+                    receiver=f.follower,
+                    notification_type="tweet",
+                    tweet=tweet
+                )
             return redirect('tweet_list')
     else:
         form = TweetForm()
@@ -218,3 +226,18 @@ def followers_list_view(request, username):
     user = get_object_or_404(User, username=username)
     followers = Follow.objects.filter(following=user).select_related('follower')
     return render(request, 'Y/followers_list.html', {'user': user, 'followers': followers})
+
+@login_required
+def send_dm(request, username):
+    receiver = get_object_or_404(User, username=username)
+    if request.method == "POST":
+        content = request.POST.get("content")
+        if content:
+            DirectMessage.objects.create(sender=request.user, receiver=receiver, content=content)
+        return redirect("dm_inbox")
+    return render(request, "Y/send_dm.html", {"receiver": receiver})
+
+@login_required
+def dm_inbox(request):
+    messages = DirectMessage.objects.filter(receiver=request.user).order_by("-created_at")
+    return render(request, "Y/dm_inbox.html", {"messages": messages})

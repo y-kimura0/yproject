@@ -3,7 +3,7 @@ from . import views
 from .api_views import TweetListView, like_tweet_api, follow_user_api, NotificationListView
 from .api_views import LoginAPI, LogoutAPI
 from rest_framework.authtoken.views import obtain_auth_token
-from .views import retweet, reply, tweet_list, tweet_detail, profile, follow_user,following_list_view, followers_list_view
+from .views import retweet, reply, tweet_list, tweet_detail, profile, follow_user,following_list_view, followers_list_view,send_dm, dm_inbox
 
 urlpatterns = [
     path('', views.tweet_list, name='tweet_list'),
@@ -31,4 +31,6 @@ urlpatterns = [
     path('api/follow/<str:username>/', follow_user_api, name='follow_user_api'),
     path('tweet/<int:tweet_id>/', tweet_detail, name='tweet_detail'),
     path('profile/<int:user_id>/', profile, name='profile'),
+    path('dm/<str:username>/', views.send_dm, name='send_dm'),
+    path('dm/', dm_inbox, name='dm_inbox'),
 ]
