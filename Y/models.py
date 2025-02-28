@@ -60,6 +60,7 @@ class Notification(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver_notifications")
     notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES)
     tweet = models.ForeignKey('Tweet', on_delete=models.CASCADE, null=True, blank=True)  # いいねの場合
+    message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 

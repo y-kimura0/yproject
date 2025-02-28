@@ -45,23 +45,25 @@ def like_tweet_api(request, tweet_id):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def follow_user_api(request, username):
-    user_to_follow = User.objects.filter(username=username).first()
-    
-    if not user_to_follow:
-        return Response({'error': 'User not found'}, status=404)
-
-    if user_to_follow == request.user:
-        return Response({'error': 'You cannot follow yourself'}, status=400)
-
+    user_to_follow = User.objects.get(username=username)
     follow, created = Follow.objects.get_or_create(follower=request.user, following=user_to_follow)
-    
-    if not created:
+
+    if created:
+        # フォロー通知を作成
+        Notification.objects.create(
+            sender=request.user,
+            receiver=user_to_follow,
+            notification_type="follow",
+            message=f"{request.user.username} さんがあなたをフォローしました。"  # message を使う
+        )
+        followed = True
+    else:
+        # フォロー解除
         follow.delete()
         followed = False
-    else:
-        followed = True
 
     return Response({'followed': followed})
+
 
 
 # 通知一覧
